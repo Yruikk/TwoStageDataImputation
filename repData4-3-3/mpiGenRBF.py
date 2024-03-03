@@ -8,12 +8,10 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-missRatio = 0.5
+missRatio = 0.2
 num_train_files = 8
-data_name = "sonar"
+data_name = "australian"
 res = np.zeros(8)
-# for rank in range(8):
-#     if rank >= 3:
 path_dir_data = "./" + data_name + "/missRatio=" + str(missRatio) + "/" + str(rank + 1)
 
 m = np.genfromtxt(os.path.join(path_dir_data, 'mu.txt'), dtype=float, delimiter=',')
@@ -37,8 +35,6 @@ ytr = np.delete(ytr, nan_rows, axis=0)
 # 生成C和g的取值范围
 C_range = 2.0 ** np.arange(-5, 6)
 g_range = 2.0 ** np.arange(-5, 6)
-# C_range = 2.0 ** np.arange(-2, 3)
-# g_range = 2.0 ** np.arange(-2, 3)
 
 bestcv = 0
 bestC = 0
@@ -51,14 +47,6 @@ for C in C_range:
             bestcv = acc_val
             bestC = C
             bestg = g
-if bestcv == 0:
-    for C in C_range:
-        for g in g_range:
-            acc_tr, acc_val = genRBF(Xtr, ytr, Xte, yte, m, cov, C, g)
-            if acc_val > bestcv:
-                bestcv = acc_val
-                bestC = C
-                bestg = g
 acc_tr, acc_te = genRBF(Xtr, ytr, Xte, yte, m, cov, bestC, bestg)
 acc_tr = acc_tr * 100
 acc_te = acc_te * 100
@@ -73,6 +61,3 @@ if rank == 0:
     std_acc = np.std(mat_acc, axis=0)
     print(missRatio, "Mean = ", mean_acc)
     print(missRatio, "Std = ", std_acc)
-# res[rank] = acc_te
-# print(rank)
-# print("Mean = ", res.mean())
